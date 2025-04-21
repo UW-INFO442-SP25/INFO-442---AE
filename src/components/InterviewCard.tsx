@@ -1,6 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface InterviewCardProps {
   company: string;
@@ -23,8 +23,13 @@ const InterviewCard = ({
   questions,
   user,
 }: InterviewCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <Card className="interview-card">
+    <Card 
+      className="interview-card cursor-pointer" 
+      onClick={() => navigate(`/interview/${company.toLowerCase().replace(/\s+/g, '-')}`)}
+    >
       <CardHeader>
         <CardTitle className="text-xl font-semibold">{company}</CardTitle>
         <div className="text-sm text-gray-600">{role}</div>
