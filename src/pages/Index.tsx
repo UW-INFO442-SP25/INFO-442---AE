@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import InterviewCard from "@/components/InterviewCard";
 import InterviewSubmissionForm from "@/components/InterviewSubmissionForm";
 import { Button } from "@/components/ui/button";
+import { Layout } from "@/components/layout";
 
 // Sample data - in a real app, this would come from a database
 const sampleInterviews = [
@@ -51,46 +51,86 @@ const Index = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Intern Interview Unlocked
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover real internship interview experiences shared by students, for students.
-          </p>
-        </div>
-
-        <div className="mb-12">
-          <SearchBar onSearch={setSearchQuery} />
-        </div>
-
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            Recent Interview Experiences
-          </h2>
-          <Button
-            onClick={() => setShowSubmissionForm(!showSubmissionForm)}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {showSubmissionForm ? "Close Form" : "Share Your Experience"}
-          </Button>
-        </div>
-
-        {showSubmissionForm && (
-          <div className="mb-8">
-            <InterviewSubmissionForm />
+    <Layout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero Banner */}
+        <div className="bg-primary/10 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-gray-900 mb-6">
+                Intern Interview Unlocked
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+                Your gateway to transparent internship interviews. Learn from real experiences, 
+                share your journey, and help create equal opportunities for all students.
+              </p>
+              <div className="flex justify-center gap-4">
+                <Button
+                  onClick={() => setShowSubmissionForm(!showSubmissionForm)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Share Your Experience
+                </Button>
+                <Button variant="outline" onClick={() => window.location.href = '#recent'}>
+                  Browse Interviews
+                </Button>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {filteredInterviews.map((interview, index) => (
-            <InterviewCard key={index} {...interview} />
-          ))}
+        {/* Key Features */}
+        <div className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center p-6">
+                <h3 className="text-lg font-semibold mb-2">Real Experiences</h3>
+                <p className="text-gray-600">
+                  Learn from verified student experiences at top companies
+                </p>
+              </div>
+              <div className="text-center p-6">
+                <h3 className="text-lg font-semibold mb-2">Detailed Insights</h3>
+                <p className="text-gray-600">
+                  Get specific interview questions, processes, and preparation tips
+                </p>
+              </div>
+              <div className="text-center p-6">
+                <h3 className="text-lg font-semibold mb-2">Community Driven</h3>
+                <p className="text-gray-600">
+                  Join a community of students helping each other succeed
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Content Section */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-12">
+            <SearchBar onSearch={setSearchQuery} />
+          </div>
+
+          <div className="flex justify-between items-center mb-8" id="recent">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Recent Interview Experiences
+            </h2>
+          </div>
+
+          {showSubmissionForm && (
+            <div className="mb-8">
+              <InterviewSubmissionForm />
+            </div>
+          )}
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+            {filteredInterviews.map((interview, index) => (
+              <InterviewCard key={index} {...interview} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
