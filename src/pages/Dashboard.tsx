@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/layout";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,7 @@ const recentInterviews = [
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -76,7 +77,10 @@ const Dashboard = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="p-6 bg-blue-50">
+            <Card 
+              className="p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors" 
+              onClick={() => navigate('/interviews')}
+            >
               <div className="text-4xl font-bold text-blue-500 mb-1">47</div>
               <div className="text-gray-700 mb-2">Interviews Explored</div>
               <div className="text-sm text-gray-500">+12 from last week</div>
@@ -88,7 +92,10 @@ const Dashboard = () => {
               <div className="text-sm text-gray-500">+3 from last week</div>
             </Card>
             
-            <Card className="p-6 bg-blue-50">
+            <Card 
+              className="p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors"
+              onClick={() => navigate('/my-contributions')}
+            >
               <div className="text-4xl font-bold text-blue-500 mb-1">2</div>
               <div className="text-gray-700 mb-2">Your Contributions</div>
               <div className="text-sm text-gray-500">Help others by sharing more</div>
@@ -124,7 +131,12 @@ const Dashboard = () => {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                     <p className="text-gray-600 mb-4">{item.description}</p>
-                    <Button className="bg-blue-500 hover:bg-blue-600 text-white">View</Button>
+                    <Button 
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      onClick={() => navigate(`/interview/${item.company.toLowerCase()}`)}
+                    >
+                      View
+                    </Button>
                   </div>
                 </Card>
               ))}
@@ -153,7 +165,12 @@ const Dashboard = () => {
                       <div className="text-sm text-gray-500 text-right">
                         Shared by {interview.sharedBy} • {interview.date}
                       </div>
-                      <Button className="bg-blue-500 hover:bg-blue-600 text-white">View</Button>
+                      <Button 
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={() => navigate(`/interview/${interview.company.toLowerCase()}`)}
+                      >
+                        View
+                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -161,7 +178,13 @@ const Dashboard = () => {
             </div>
             
             <div className="mt-8 text-center">
-              <Button variant="outline" className="px-8">Load More</Button>
+              <Button 
+                variant="outline" 
+                className="px-8"
+                onClick={() => navigate('/interviews')}
+              >
+                Load More
+              </Button>
             </div>
           </div>
         </div>
