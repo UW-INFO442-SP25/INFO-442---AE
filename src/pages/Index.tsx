@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "@/components/SearchBar";
 import InterviewCard from "@/components/InterviewCard";
 import InterviewSubmissionForm from "@/components/InterviewSubmissionForm";
@@ -43,6 +45,7 @@ const sampleInterviews = [
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
+  const navigate = useNavigate();
 
   const filteredInterviews = sampleInterviews.filter(
     (interview) =>
@@ -73,6 +76,9 @@ const Index = () => {
                 </Button>
                 <Button variant="outline" onClick={() => window.location.href = '#recent'}>
                   Browse Interviews
+                </Button>
+                <Button variant="secondary" onClick={() => navigate('/dashboard')}>
+                  Go to Dashboard
                 </Button>
               </div>
             </div>
