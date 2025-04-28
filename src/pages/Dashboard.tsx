@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import FeaturedCompanies from "@/components/FeaturedCompanies";
 
 // Sample recommended interview content
 const recommendedContent = [
@@ -58,7 +58,7 @@ const Dashboard = () => {
     <div className="flex min-h-screen bg-gray-50">
       <DashboardSidebar />
       
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -100,6 +100,11 @@ const Dashboard = () => {
               <div className="text-gray-700 mb-2">Your Contributions</div>
               <div className="text-sm text-gray-500">Help others by sharing more</div>
             </Card>
+          </div>
+
+          {/* Featured Companies with Search */}
+          <div className="mb-12">
+            <FeaturedCompanies />
           </div>
 
           {/* Recommended Content */}
