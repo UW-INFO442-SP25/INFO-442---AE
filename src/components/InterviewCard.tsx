@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +28,7 @@ const InterviewCard = ({
 
   return (
     <Card 
-      className="interview-card cursor-pointer" 
+      className="interview-card hover:shadow-md transition-shadow cursor-pointer" 
       onClick={() => navigate(`/interview/${company.toLowerCase().replace(/\s+/g, '-')}`)}
     >
       <CardHeader>

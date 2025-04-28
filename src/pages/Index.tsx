@@ -67,14 +67,14 @@ const Index = () => {
                 Your gateway to transparent internship interviews. Learn from real experiences, 
                 share your journey, and help create equal opportunities for all students.
               </p>
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-4 flex-wrap">
                 <Button
                   onClick={() => setShowSubmissionForm(!showSubmissionForm)}
                   className="bg-primary hover:bg-primary/90"
                 >
                   Share Your Experience
                 </Button>
-                <Button variant="outline" onClick={() => window.location.href = '#recent'}>
+                <Button variant="outline" onClick={() => document.getElementById('recent')?.scrollIntoView({ behavior: 'smooth' })}>
                   Browse Interviews
                 </Button>
                 <Button variant="secondary" onClick={() => navigate('/dashboard')}>
@@ -121,6 +121,12 @@ const Index = () => {
             <h2 className="text-2xl font-semibold text-gray-900">
               Recent Interview Experiences
             </h2>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/interviews')}
+            >
+              View All
+            </Button>
           </div>
 
           {showSubmissionForm && (

@@ -133,7 +133,10 @@ const Dashboard = () => {
                     <p className="text-gray-600 mb-4">{item.description}</p>
                     <Button 
                       className="bg-blue-500 hover:bg-blue-600 text-white"
-                      onClick={() => navigate(`/interview/${item.company.toLowerCase()}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/interview/${item.company.toLowerCase()}`);
+                      }}
                     >
                       View
                     </Button>
@@ -167,7 +170,10 @@ const Dashboard = () => {
                       </div>
                       <Button 
                         className="bg-blue-500 hover:bg-blue-600 text-white"
-                        onClick={() => navigate(`/interview/${interview.company.toLowerCase()}`)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/interview/${interview.company.toLowerCase()}`);
+                        }}
                       >
                         View
                       </Button>

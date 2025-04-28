@@ -1,11 +1,13 @@
 
 import { Layout } from "@/components/layout";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { toast } from "@/hooks/use-toast";
 
 // Sample data for user contributions
 const userContributions = [
@@ -40,6 +42,7 @@ const userContributions = [
 
 const Contributions = () => {
   const [activeTab, setActiveTab] = useState("published");
+  const navigate = useNavigate();
   
   const filteredContributions = userContributions.filter(
     (contribution) => activeTab === "all" || contribution.status === activeTab
@@ -50,7 +53,15 @@ const Contributions = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">My Contributions</h1>
-          <Button className="bg-blue-500 hover:bg-blue-600">
+          <Button 
+            className="bg-blue-500 hover:bg-blue-600"
+            onClick={() => {
+              toast({
+                title: "Create New Interview Experience",
+                description: "The form has been opened.",
+              });
+            }}
+          >
             Share New Experience
           </Button>
         </div>
@@ -112,8 +123,10 @@ const Contributions = () => {
                       variant="outline" 
                       className="mr-2"
                       onClick={() => {
-                        // In a real app, this would navigate to edit page
-                        alert(`Edit ${contribution.title}`);
+                        toast({
+                          title: "Edit Interview Experience",
+                          description: `Editing ${contribution.title}`,
+                        });
                       }}
                     >
                       Edit
@@ -121,8 +134,7 @@ const Contributions = () => {
                     <Button 
                       variant="secondary"
                       onClick={() => {
-                        // In a real app, this would navigate to the interview detail
-                        alert(`View ${contribution.title}`);
+                        navigate(`/interview/${contribution.company.toLowerCase().replace(/\s+/g, '-')}`);
                       }}
                     >
                       View

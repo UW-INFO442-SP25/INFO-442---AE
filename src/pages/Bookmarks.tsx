@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bookmark, BookmarkX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { toast } from "@/hooks/use-toast";
 
 // Sample data for bookmarked interviews
 const bookmarkedInterviews = [
@@ -54,6 +55,10 @@ const Bookmarks = () => {
   
   const removeBookmark = (id: number) => {
     setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
+    toast({
+      title: "Bookmark removed",
+      description: "Interview has been removed from your bookmarks",
+    });
   };
 
   return (
@@ -122,7 +127,7 @@ const Bookmarks = () => {
             </p>
             <Button 
               className="bg-blue-500 hover:bg-blue-600"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/interviews')}
             >
               Browse Interviews
             </Button>

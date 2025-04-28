@@ -8,8 +8,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, User, Clock } from "lucide-react";
+import { ArrowLeft, Briefcase, User, Clock, Bookmark, Share } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 // In a real app, this would come from an API
 const getInterviewDetail = (id: string) => {
@@ -67,6 +68,22 @@ const InterviewDetail = () => {
   const { id } = useParams();
   const interview = getInterviewDetail(id || "");
 
+  const handleBookmark = () => {
+    toast({
+      title: "Interview bookmarked",
+      description: "This interview has been added to your bookmarks",
+    });
+  };
+
+  const handleShare = () => {
+    // In a real app, this would open a share dialog
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied",
+      description: "Interview URL has been copied to clipboard",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
@@ -81,10 +98,32 @@ const InterviewDetail = () => {
 
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">{interview.company}</CardTitle>
-            <div className="flex items-center gap-2 text-gray-600 mt-2">
-              <Briefcase className="h-4 w-4" />
-              <span>{interview.role}</span>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl font-bold">{interview.company}</CardTitle>
+                <div className="flex items-center gap-2 text-gray-600 mt-2">
+                  <Briefcase className="h-4 w-4" />
+                  <span>{interview.role}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleBookmark}
+                >
+                  <Bookmark className="h-4 w-4 mr-1" />
+                  Bookmark
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleShare}
+                >
+                  <Share className="h-4 w-4 mr-1" />
+                  Share
+                </Button>
+              </div>
             </div>
             <div className="flex gap-2 mt-4 flex-wrap">
               {interview.interviewType.map((type) => (
