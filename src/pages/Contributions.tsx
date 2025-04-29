@@ -56,6 +56,7 @@ const Contributions = () => {
           <Button 
             className="bg-blue-500 hover:bg-blue-600"
             onClick={() => {
+              navigate('/create-interview')
               toast({
                 title: "Create New Interview Experience",
                 description: "The form has been opened.",

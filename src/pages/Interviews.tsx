@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import InterviewCard from "@/components/InterviewCard";
 import SearchBar from "@/components/SearchBar";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 // Sample data - extended version with more interviews
@@ -105,11 +107,14 @@ const allInterviews = [
 const companies = ["All Companies", "Tech Giant Corp", "Startup Innovation", "Design Studio Co", "Finance First", "Health Tech", "Social Network"];
 const roles = ["All Roles", "Software Engineer", "Product Management", "UX Designer", "Business Analyst", "Data Science", "Frontend Engineer"];
 
+
 const Interviews = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("All Companies");
   const [selectedRole, setSelectedRole] = useState("All Roles");
-  
+  const navigate = useNavigate();
+
+
   // Filter interviews based on search and filters
   const filteredInterviews = allInterviews.filter((interview) => {
     const matchesSearch = 
@@ -129,9 +134,18 @@ const Interviews = () => {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Interview Experiences</h1>
-            <Button className="bg-blue-500 hover:bg-blue-600">
-              Share Your Experience
-            </Button>
+            <Button 
+            className="bg-blue-500 hover:bg-blue-600"
+            onClick={() => {
+              navigate('/create-interview')
+              toast({
+                title: "Create New Interview Experience",
+                description: "The form has been opened.",
+              });
+            }}
+          >
+            Share New Experience
+          </Button>
           </div>
 
           <div className="mb-8">

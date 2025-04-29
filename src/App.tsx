@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Bookmarks from "./pages/Bookmarks";
 import Contributions from "./pages/Contributions";
 import Interviews from "./pages/Interviews";
+import CreateInterview from "./pages/CreateInterview";
 // Firebase test
 import FirebaseTest from "./pages/FirebaseTest";
 
@@ -25,6 +26,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/create-interview" element={<CreateInterview />} />
           <Route path="/firebase-test" element={<FirebaseTest />} />
           <Route path="/" element={<Index />} />
           <Route path="/interview/:id" element={<InterviewDetail />} />

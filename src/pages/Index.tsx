@@ -69,9 +69,11 @@ const Index = () => {
               </p>
               <div className="flex justify-center gap-4 flex-wrap">
                 <Button
-                  onClick={() => setShowSubmissionForm(!showSubmissionForm)}
                   className="bg-primary hover:bg-primary/90"
-                >
+                  onClick={() => {
+                  navigate('/create-interview')
+                  setShowSubmissionForm(!showSubmissionForm)
+                  }}>
                   Share Your Experience
                 </Button>
                 <Button variant="outline" onClick={() => document.getElementById('recent')?.scrollIntoView({ behavior: 'smooth' })}>
