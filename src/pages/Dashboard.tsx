@@ -6,11 +6,13 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import RecommendedContent from "@/components/dashboard/RecommendedContent";
 import RecentInterviews from "@/components/dashboard/RecentInterviews";
+import { Layout } from "@/components/layout";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
   return (
+    <Layout>
     <div className="flex min-h-screen bg-gray-50">
       <DashboardSidebar />
       
@@ -26,6 +28,7 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
+    </Layout>
   );
 };
 
