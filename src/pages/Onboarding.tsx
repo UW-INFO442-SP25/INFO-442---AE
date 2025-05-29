@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -10,6 +11,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { setNeedsOnboarding } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
@@ -104,7 +106,7 @@ const Onboarding = () => {
     } else {
       // Save onboarding data and complete setup
       localStorage.setItem("userProfile", JSON.stringify(formData));
-      localStorage.setItem("needsOnboarding", "false");
+      setNeedsOnboarding(false);
       navigate("/dashboard");
     }
   };
