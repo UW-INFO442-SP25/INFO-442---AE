@@ -1,36 +1,94 @@
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, signup, currentUser } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Get the redirect path from location state or default to home
+  const from = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    console.log("Login component - Current user:", currentUser);
+  }, [currentUser]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock authentication - in real app, this would call your auth service
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("needsOnboarding", "true");
-    navigate("/onboarding");
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        console.log("Attempting login...");
+        await login(formData.email, formData.password);
+        console.log("Login successful");
+        toast({
+          title: "Success!",
+          description: "You have been logged in successfully.",
+        });
+        navigate(from, { replace: true });
+      } else {
+        // Signup
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: "Error",
+            description: "Passwords do not match.",
+            variant: "destructive",
+          });
+          return;
+        }
+        await signup(formData.email, formData.password);
+        toast({
+          title: "Success!",
+          description: "Your account has been created successfully.",
+        });
+        navigate("/onboarding");
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleSignIn = () => {
-    // Mock Google sign-in
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("needsOnboarding", "true");
-    navigate("/onboarding");
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      // TODO: Implement Google Sign In
+      toast({
+        title: "Coming Soon",
+        description: "Google Sign In will be available soon!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign in with Google.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,6 +107,7 @@ const Login = () => {
             onClick={handleGoogleSignIn}
             variant="outline" 
             className="w-full"
+            disabled={loading}
           >
             <Mail className="mr-2 h-4 w-4" />
             Continue with Google
@@ -73,6 +132,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 required
+                disabled={loading}
               />
             </div>
             
@@ -86,6 +146,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   required
+                  disabled={loading}
                 />
                 <Button
                   type="button"
@@ -93,6 +154,7 @@ const Login = () => {
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -113,12 +175,13 @@ const Login = () => {
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                   required
+                  disabled={loading}
                 />
               </div>
             )}
 
-            <Button type="submit" className="w-full">
-              {isLogin ? "Sign In" : "Create Account"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
@@ -130,6 +193,7 @@ const Login = () => {
               variant="link"
               className="p-0 h-auto"
               onClick={() => setIsLogin(!isLogin)}
+              disabled={loading}
             >
               {isLogin ? "Sign up" : "Sign in"}
             </Button>

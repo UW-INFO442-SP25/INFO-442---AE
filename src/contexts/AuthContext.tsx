@@ -1,16 +1,18 @@
-<<<<<<< HEAD
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
   User,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 interface AuthContextType {
   currentUser: User | null;
+  loading: boolean;
   signup: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -31,28 +33,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("Setting up auth state listener...");
+    
+    // Set persistence to LOCAL
+    setPersistence(auth, browserLocalPersistence)
+      .catch((error) => {
+        console.error("Auth persistence error:", error);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user ? "User logged in" : "No user");
       setCurrentUser(user);
       setLoading(false);
     });
 
-    return unsubscribe;
+    // Cleanup subscription
+    return () => {
+      console.log("Cleaning up auth state listener...");
+      unsubscribe();
+    };
   }, []);
 
   async function signup(email: string, password: string) {
-    await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      setCurrentUser(userCredential.user);
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
   }
 
   async function login(email: string, password: string) {
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setCurrentUser(userCredential.user);
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
   }
 
   async function logout() {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+      setCurrentUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw error;
+    }
   }
 
   const value = {
     currentUser,
+    loading,
     signup,
     login,
     logout
@@ -60,71 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-} 
-=======
-
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  needsOnboarding: boolean;
-  setAuthenticated: (value: boolean) => void;
-  setNeedsOnboarding: (value: boolean) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [needsOnboarding, setNeedsOnboardingState] = useState(false);
-
-  useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated") === "true";
-    const onboardingStatus = localStorage.getItem("needsOnboarding") === "true";
-    setIsAuthenticated(authStatus);
-    setNeedsOnboardingState(onboardingStatus);
-  }, []);
-
-  const setAuthenticated = (value: boolean) => {
-    setIsAuthenticated(value);
-    localStorage.setItem("isAuthenticated", value.toString());
-  };
-
-  const setNeedsOnboarding = (value: boolean) => {
-    setNeedsOnboardingState(value);
-    localStorage.setItem("needsOnboarding", value.toString());
-  };
-
-  const logout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("needsOnboarding");
-    localStorage.removeItem("userProfile");
-    setIsAuthenticated(false);
-    setNeedsOnboardingState(false);
-  };
-
-  return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      needsOnboarding,
-      setAuthenticated,
-      setNeedsOnboarding,
-      logout
-    }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
->>>>>>> 42215a582c93fd0758f4a7f6f44b362e409eea4c
+}

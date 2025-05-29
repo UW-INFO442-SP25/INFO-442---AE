@@ -6,9 +6,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "@/contexts/AuthContext";
+
 const InterviewSubmissionForm = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company: "",
@@ -32,16 +35,37 @@ const InterviewSubmissionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!currentUser) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to submit an interview experience.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
+      console.log("Starting submission process...");
+      console.log("Current user:", currentUser.uid);
+      
       const interviewsRef = collection(db, "interviews");
-      await addDoc(interviewsRef, {
+      const interviewData = {
         ...formData,
-        createdAt: new Date(),
-        // Might later add createdBy: user.uid
-      });
-      await new Promise(resolve => setTimeout(resolve, 1000));
+        createdAt: serverTimestamp(),
+        createdBy: currentUser.uid,
+        createdByEmail: currentUser.email,
+        status: 'pending',
+        rounds: parseInt(formData.rounds, 10)
+      };
+
+      console.log("Attempting to add document with data:", interviewData);
+      
+      const docRef = await addDoc(interviewsRef, interviewData);
+      console.log("Document written with ID:", docRef.id);
       
       toast({
         title: "Success!",
@@ -49,11 +73,17 @@ const InterviewSubmissionForm = () => {
       });
       
       navigate('/my-contributions');
-    } catch (error) {
-      console.error("Error submitting interview experience:", error);
+    } catch (error: any) {
+      console.error("Detailed error submitting interview experience:", {
+        error,
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      
       toast({
         title: "Error",
-        description: "Failed to submit interview experience. Please try again.",
+        description: `Failed to submit interview experience: ${error.message}`,
         variant: "destructive",
       });
     } finally {

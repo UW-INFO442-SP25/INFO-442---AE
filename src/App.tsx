@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -17,68 +16,89 @@ import Bookmarks from "./pages/Bookmarks";
 import Contributions from "./pages/Contributions";
 import Interviews from "./pages/Interviews";
 import CreateInterview from "./pages/CreateInterview";
+import InterviewSubmissionForm from "./components/InterviewSubmissionForm";
 // Firebase test
 import FirebaseTest from "./pages/FirebaseTest";
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (previously cacheTime)
+    },
+  },
+});
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-<<<<<<< HEAD
-      <BrowserRouter>
-        <Routes>
-          <Route path="/create-interview" element={<CreateInterview />} />
-          <Route path="/firebase-test" element={<FirebaseTest />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/interview/:id" element={<InterviewDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/bookmarks" element={<Bookmarks />} />
-          <Route path="/my-contributions" element={<Contributions />} />
-          <Route path="/interviews" element={<Interviews />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-=======
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/interview/:id" element={<InterviewDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/bookmarks" element={
-              <ProtectedRoute>
-                <Bookmarks />
-              </ProtectedRoute>
-            } />
-            <Route path="/my-contributions" element={
-              <ProtectedRoute>
-                <Contributions />
-              </ProtectedRoute>
-            } />
-            <Route path="/interviews" element={
-              <ProtectedRoute>
-                <Interviews />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
->>>>>>> 42215a582c93fd0758f4a7f6f44b362e409eea4c
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AuthProvider>
+          <Router>
+            <main>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/login" element={<Login />} />
+                
+                {/* Protected routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/bookmarks" element={
+                  <ProtectedRoute>
+                    <Bookmarks />
+                  </ProtectedRoute>
+                } />
+                <Route path="/my-contributions" element={
+                  <ProtectedRoute>
+                    <Contributions />
+                  </ProtectedRoute>
+                } />
+                <Route path="/interviews" element={
+                  <ProtectedRoute>
+                    <Interviews />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-interview" element={
+                  <ProtectedRoute>
+                    <CreateInterview />
+                  </ProtectedRoute>
+                } />
+                <Route path="/interview/:id" element={
+                  <ProtectedRoute>
+                    <InterviewDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/onboarding" element={
+                  <ProtectedRoute>
+                    <Onboarding />
+                  </ProtectedRoute>
+                } />
+                <Route
+                  path="/share-experience"
+                  element={
+                    <ProtectedRoute>
+                      <InterviewSubmissionForm />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                {/* 404 route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </Router>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
