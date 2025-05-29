@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 
 const Onboarding = () => {
@@ -21,6 +22,29 @@ const Onboarding = () => {
     experience: "",
     interests: [] as string[]
   });
+
+  const careerInterests = [
+    "Software Engineering",
+    "Data Science",
+    "Product Management",
+    "Design (UI/UX)",
+    "Marketing",
+    "Finance",
+    "Consulting",
+    "Sales",
+    "Operations",
+    "Research",
+    "Other"
+  ];
+
+  const handleInterestChange = (interest: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: checked 
+        ? [...prev.interests, interest]
+        : prev.interests.filter(i => i !== interest)
+    }));
+  };
 
   const steps = [
     {
@@ -97,6 +121,26 @@ const Onboarding = () => {
           </RadioGroup>
         </div>
       )
+    },
+    {
+      title: "Career Interests",
+      content: (
+        <div className="space-y-4">
+          <Label>What career fields are you interested in? (Select all that apply)</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {careerInterests.map((interest) => (
+              <div key={interest} className="flex items-center space-x-2">
+                <Checkbox
+                  id={interest}
+                  checked={formData.interests.includes(interest)}
+                  onCheckedChange={(checked) => handleInterestChange(interest, checked as boolean)}
+                />
+                <Label htmlFor={interest} className="text-sm">{interest}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
     }
   ];
 
@@ -125,6 +169,8 @@ const Onboarding = () => {
         return formData.year && formData.major;
       case 2:
         return formData.experience;
+      case 3:
+        return formData.interests.length > 0;
       default:
         return true;
     }
@@ -165,6 +211,7 @@ const Onboarding = () => {
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
+              className="bg-blue-600 hover:bg-blue-700"
             >
               {currentStep === steps.length - 1 ? "Get Started" : "Next"}
               {currentStep !== steps.length - 1 && <ChevronRight className="ml-2 h-4 w-4" />}
