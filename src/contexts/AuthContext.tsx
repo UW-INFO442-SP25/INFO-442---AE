@@ -13,13 +13,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [needsOnboarding, setNeedsOnboardingState] = useState(false);
 
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated") === "true";
     const onboardingStatus = localStorage.getItem("needsOnboarding") === "true";
     setIsAuthenticated(authStatus);
-    setNeedsOnboarding(onboardingStatus);
+    setNeedsOnboardingState(onboardingStatus);
   }, []);
 
   const setAuthenticated = (value: boolean) => {
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setNeedsOnboarding = (value: boolean) => {
-    setNeedsOnboarding(value);
+    setNeedsOnboardingState(value);
     localStorage.setItem("needsOnboarding", value.toString());
   };
 
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("needsOnboarding");
     localStorage.removeItem("userProfile");
     setIsAuthenticated(false);
-    setNeedsOnboarding(false);
+    setNeedsOnboardingState(false);
   };
 
   return (
