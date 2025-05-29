@@ -1,10 +1,14 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Bookmark } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, BookOpen, Bookmark, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   
   const navItems = [
     {
@@ -24,13 +28,18 @@ const DashboardSidebar = () => {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
-    <div className="w-64 bg-blue-50 min-h-screen p-6">
+    <div className="w-64 bg-blue-50 min-h-screen p-6 flex flex-col">
       <div className="mb-10">
         <Link to="/" className="text-2xl font-bold text-blue-500">Prep Well</Link>
       </div>
       
-      <nav>
+      <nav className="flex-1">
         <ul className="space-y-2">
           {navItems.map((item) => (
             <li key={item.name}>
@@ -49,6 +58,17 @@ const DashboardSidebar = () => {
           ))}
         </ul>
       </nav>
+
+      <div className="mt-auto pt-4 border-t border-blue-200">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start text-gray-700 hover:bg-blue-100"
+        >
+          <LogOut className="h-5 w-5 mr-3" />
+          Sign Out
+        </Button>
+      </div>
     </div>
   );
 };
