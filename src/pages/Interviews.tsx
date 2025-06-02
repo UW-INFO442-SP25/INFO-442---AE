@@ -1,15 +1,36 @@
+// src/pages/Interviews.tsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  Timestamp,
+} from "firebase/firestore";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import InterviewCard from "@/components/InterviewCard";
 import SearchBar from "@/components/SearchBar";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2 } from "lucide-react";
+
+import useDebounce from "@/hooks/useDebounce";
+import useInterviewSearch from "@/hooks/useInterviewSearch";
+
+/* ------------------------------------------------------------------ */
+/*  Types */
+/* ------------------------------------------------------------------ */
 
 interface FirebaseInterview {
   id: string;
@@ -22,10 +43,18 @@ interface FirebaseInterview {
   preparation?: string;
   timeline?: string;
   difficulty: string;
-  createdAt: any;
+  createdAt: Timestamp;
   createdBy: string;
   createdByEmail: string;
   status: string;
+}
+
+interface RemoteInterview {
+  id: number;
+  company: string;
+  role: string;
+  type: string;
+  outcome?: string;
 }
 
 interface InterviewCardData {
@@ -41,7 +70,50 @@ interface InterviewCardData {
   };
 }
 
-// Sample data as fallback
+/* ------------------------------------------------------------------ */
+/*  Helpers */
+/* ------------------------------------------------------------------ */
+
+// Convert a Firestore doc to the structure InterviewCard expects
+const convertFirebaseToCardData = (
+  fb: FirebaseInterview,
+): InterviewCardData => ({
+  company: fb.company,
+  role: fb.role,
+  interviewType: fb.interviewType
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean),
+  rounds: fb.rounds,
+  questions: fb.questions
+    .split("\n")
+    .filter((q) => q.trim())
+    .slice(0, 3),
+  user: {
+    name: fb.createdByEmail?.split("@")[0] || "Anonymous",
+    university: "University",
+    year: "2024",
+  },
+});
+
+// Convert a row returned by /api/search to InterviewCardData
+const convertRemoteToCardData = (r: RemoteInterview): InterviewCardData => ({
+  company: r.company,
+  role: r.role,
+  interviewType: [r.type],
+  rounds: 0,
+  questions: [],
+  user: {
+    name: "Contributor",
+    university: "",
+    year: "",
+  },
+});
+
+/* ------------------------------------------------------------------ */
+/*  Fallback sample data */
+/* ------------------------------------------------------------------ */
+
 const sampleInterviews: InterviewCardData[] = [
   {
     company: "Tech Giant Corp",
@@ -52,11 +124,7 @@ const sampleInterviews: InterviewCardData[] = [
       "Implement a binary search tree",
       "Tell me about a time you worked in a team",
     ],
-    user: {
-      name: "Alex Chen",
-      university: "Stanford University",
-      year: "2024",
-    },
+    user: { name: "Alex Chen", university: "Stanford", year: "2024" },
   },
   {
     company: "Startup Innovation",
@@ -67,134 +135,141 @@ const sampleInterviews: InterviewCardData[] = [
       "How would you improve our main product?",
       "Tell me about a project you led",
     ],
-    user: {
-      name: "Sarah Johnson",
-      university: "MIT",
-      year: "2025",
-    },
+    user: { name: "Sarah Johnson", university: "MIT", year: "2025" },
   },
 ];
 
-// Helper function to convert Firebase interview to InterviewCard format
-const convertFirebaseToCardData = (firebaseInterview: FirebaseInterview): InterviewCardData => {
-  return {
-    company: firebaseInterview.company,
-    role: firebaseInterview.role,
-    interviewType: firebaseInterview.interviewType.split(',').map(type => type.trim()),
-    rounds: firebaseInterview.rounds,
-    questions: firebaseInterview.questions.split('\n').filter(q => q.trim().length > 0).slice(0, 3),
-    user: {
-      name: firebaseInterview.createdByEmail?.split('@')[0] || "Anonymous User",
-      university: "University",
-      year: "2024",
-    },
-  };
-};
+/* ------------------------------------------------------------------ */
+/*  Component */
+/* ------------------------------------------------------------------ */
 
 const Interviews = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  /* ------------------------ local state ------------------------ */
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedQuery = useDebounce(searchQuery, 300);
+
   const [selectedCompany, setSelectedCompany] = useState("All Companies");
   const [selectedRole, setSelectedRole] = useState("All Roles");
-  const [interviews, setInterviews] = useState<InterviewCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const [firebaseInterviews, setFirebaseInterviews] = useState<
+    InterviewCardData[]
+  >([]);
+  const [firebaseLoading, setFirebaseLoading] = useState(true);
+
   const navigate = useNavigate();
 
-  // Fetch interviews from Firebase
+  /* ------------------------ Firestore ------------------------- */
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        console.log("Fetching interviews from Firebase...");
-        const interviewsRef = collection(db, "interviews");
-        const q = query(interviewsRef, orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        
-        console.log("Found interviews:", querySnapshot.size);
-        
-        const firebaseInterviews: FirebaseInterview[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data() as Omit<FirebaseInterview, 'id'>;
-          firebaseInterviews.push({
-            id: doc.id,
-            ...data
-          });
-        });
+        const ref = collection(db, "interviews");
+        const q = query(ref, orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
 
-        // Convert Firebase interviews to card format
-        const convertedInterviews = firebaseInterviews
-          .filter(interview => interview.status === 'pending' || interview.status === 'approved')
+        const converted = snap.docs
+          .map(
+            (d) =>
+              ({
+                id: d.id,
+                ...d.data(),
+              } as FirebaseInterview),
+          )
+          .filter((ivw) => ivw.status === "pending" || ivw.status === "approved")
           .map(convertFirebaseToCardData);
 
-        // Combine with sample data for now
-        const allInterviews = [...convertedInterviews, ...sampleInterviews];
-        setInterviews(allInterviews);
-        
-        console.log("Successfully loaded interviews:", allInterviews.length);
-      } catch (error) {
-        console.error("Error fetching interviews:", error);
+        setFirebaseInterviews([...converted, ...sampleInterviews]);
+      } catch (err) {
+        console.error(err);
         toast({
           title: "Error",
           description: "Failed to load interviews. Showing sample data.",
           variant: "destructive",
         });
-        // Fallback to sample data
-        setInterviews(sampleInterviews);
+        setFirebaseInterviews(sampleInterviews);
       } finally {
-        setLoading(false);
+        setFirebaseLoading(false);
       }
     };
-
     fetchInterviews();
   }, []);
 
-  // Generate filter options from current interviews
-  const companies = ["All Companies", ...Array.from(new Set(interviews.map(interview => interview.company)))];
-  const roles = ["All Roles", ...Array.from(new Set(interviews.map(interview => {
-    // Extract base role (remove "Intern" suffix for grouping)
-    return interview.role.replace(/\s+(Intern|Internship)$/i, '').trim();
-  })))];
+  /* ------------------------ Server search ---------------------- */
+  const {
+    data: remoteRaw = [],
+    isFetching: searchLoading,
+  } = useInterviewSearch(debouncedQuery);
 
-  // Filter interviews based on search and filters
-  const filteredInterviews = interviews.filter((interview) => {
-    const matchesSearch = 
-      interview.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      interview.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      interview.interviewType.some(type => type.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesCompany = selectedCompany === "All Companies" || interview.company === selectedCompany;
-    const matchesRole = selectedRole === "All Roles" || interview.role.toLowerCase().includes(selectedRole.toLowerCase());
-    
-    return matchesSearch && matchesCompany && matchesRole;
+  const remoteResults: InterviewCardData[] = (
+    remoteRaw as RemoteInterview[]
+  ).map(convertRemoteToCardData);
+
+  /* ------------------------ filtering -------------------------- */
+  // Which list are we currently displaying?
+  const baseInterviews =
+    debouncedQuery.trim().length > 0 ? remoteResults : firebaseInterviews;
+
+  const filteredInterviews = baseInterviews.filter((ivw) => {
+    const matchCompany =
+      selectedCompany === "All Companies" || ivw.company === selectedCompany;
+    const matchRole =
+      selectedRole === "All Roles" ||
+      ivw.role.toLowerCase().includes(selectedRole.toLowerCase());
+    return matchCompany && matchRole;
   });
 
-  if (loading) {
+  // Dropdown options should come from whatever list we’re viewing
+  const companies = [
+    "All Companies",
+    ...Array.from(new Set(baseInterviews.map((ivw) => ivw.company))),
+  ];
+  const roles = [
+    "All Roles",
+    ...Array.from(
+      new Set(
+        baseInterviews.map((ivw) =>
+          ivw.role.replace(/\s+(Intern|Internship)$/i, "").trim(),
+        ),
+      ),
+    ),
+  ];
+
+  /* ------------------------ loading states --------------------- */
+  if (firebaseLoading || searchLoading) {
     return (
       <Layout>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading interviews...</p>
+            <p className="text-gray-600">Loading interviews…</p>
           </div>
         </div>
       </Layout>
     );
   }
 
+  /* ------------------------ render ----------------------------- */
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Interview Experiences</h1>
-              <p className="text-gray-600 mt-1">{interviews.length} total experiences</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Interview Experiences
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {firebaseInterviews.length} total experiences
+              </p>
             </div>
-            <Button 
+            <Button
               className="bg-blue-500 hover:bg-blue-600"
               onClick={() => {
-                navigate('/create-interview')
+                navigate("/create-interview");
                 toast({
                   title: "Share Your Experience",
-                  description: "Help others by sharing your interview experience.",
+                  description:
+                    "Help others by sharing your interview experience.",
                 });
               }}
             >
@@ -202,57 +277,68 @@ const Interviews = () => {
             </Button>
           </div>
 
+          {/* Search */}
           <div className="mb-8">
             <SearchBar onSearch={setSearchQuery} />
           </div>
 
+          {/* Filters */}
           <div className="flex flex-wrap gap-4 mb-8">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-              <select 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company
+              </label>
+              <select
                 className="border border-gray-300 rounded-md px-3 py-2 bg-white"
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
               >
-                {companies.map((company) => (
-                  <option key={company} value={company}>{company}</option>
+                {companies.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <select 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Role
+              </label>
+              <select
                 className="border border-gray-300 rounded-md px-3 py-2 bg-white"
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
               >
-                {roles.map((role) => (
-                  <option key={role} value={role}>{role}</option>
+                {roles.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
 
+          {/* Cards */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mb-8">
-            {filteredInterviews.map((interview, index) => (
-              <InterviewCard key={`${interview.company}-${index}`} {...interview} />
+            {filteredInterviews.map((ivw, idx) => (
+              <InterviewCard key={`${ivw.company}-${idx}`} {...ivw} />
             ))}
           </div>
 
-          {filteredInterviews.length === 0 && !loading && (
+          {/* Empty state */}
+          {filteredInterviews.length === 0 && (
             <div className="text-center py-12 bg-white rounded-lg">
               <h3 className="text-xl font-medium mb-2">No interviews found</h3>
               <p className="text-gray-500 mb-4">
-                {interviews.length === 0 
+                {firebaseInterviews.length === 0
                   ? "Be the first to share an interview experience!"
-                  : "Try adjusting your search or filters to find more interviews"
-                }
+                  : "Try adjusting your search or filters to find more interviews"}
               </p>
               <div className="flex gap-2 justify-center">
-                {interviews.length > 0 && (
-                  <Button 
-                    variant="outline" 
+                {firebaseInterviews.length > 0 && (
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setSearchQuery("");
                       setSelectedCompany("All Companies");
@@ -262,9 +348,9 @@ const Interviews = () => {
                     Reset Filters
                   </Button>
                 )}
-                <Button 
+                <Button
                   className="bg-blue-500 hover:bg-blue-600"
-                  onClick={() => navigate('/create-interview')}
+                  onClick={() => navigate("/create-interview")}
                 >
                   Share Your Experience
                 </Button>
@@ -272,6 +358,7 @@ const Interviews = () => {
             </div>
           )}
 
+          {/* Pagination (placeholder) */}
           {filteredInterviews.length > 0 && (
             <Pagination>
               <PaginationContent>
@@ -279,7 +366,9 @@ const Interviews = () => {
                   <PaginationPrevious href="#" />
                 </PaginationItem>
                 <PaginationItem>
-                  <PaginationLink href="#" isActive>1</PaginationLink>
+                  <PaginationLink href="#" isActive>
+                    1
+                  </PaginationLink>
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationLink href="#">2</PaginationLink>
