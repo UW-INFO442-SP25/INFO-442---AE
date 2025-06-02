@@ -18,31 +18,51 @@ const About = () => {
             {/* Team Member 1 */}
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="h-24 w-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-3xl text-primary">JS</span>
+                <span className="text-3xl text-primary">NM</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">John Smith</h3>
+              <h3 className="text-xl font-semibold mb-2">Nobel Menghis</h3>
               <p className="text-gray-600">Full Stack Developer</p>
-              <p className="text-gray-500 mt-2">Stanford University '24</p>
+              <p className="text-gray-500 mt-2">University of Washington '25</p>
             </div>
 
             {/* Team Member 2 */}
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="h-24 w-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-3xl text-primary">AD</span>
+                <span className="text-3xl text-primary">OS</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Alice Davis</h3>
+              <h3 className="text-xl font-semibold mb-2">Oscar Su</h3>
               <p className="text-gray-600">UI/UX Designer</p>
-              <p className="text-gray-500 mt-2">MIT '25</p>
+              <p className="text-gray-500 mt-2">University of Washington '25</p>
             </div>
 
             {/* Team Member 3 */}
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="h-24 w-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-3xl text-primary">MK</span>
+                <span className="text-3xl text-primary">CC</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Michael Kim</h3>
-              <p className="text-gray-600">Product Manager</p>
-              <p className="text-gray-500 mt-2">UC Berkeley '24</p>
+              <h3 className="text-xl font-semibold mb-2">Connor Chan</h3>
+              <p className="text-gray-600">UI/UX Designer</p>
+              <p className="text-gray-500 mt-2">University of Washington '25</p>
+            </div>
+
+          {/* Team Member 4 */}
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
+              <div className="h-24 w-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
+                <span className="text-3xl text-primary">RC</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Rusheel Chande</h3>
+              <p className="text-gray-600">Full Stack Developer</p>
+              <p className="text-gray-500 mt-2">University of Washington '25</p>
+            </div>
+
+          {/* Team Member 5 */}
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
+              <div className="h-24 w-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
+                <span className="text-3xl text-primary">BP</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Benjamin Po</h3>
+              <p className="text-gray-600">Full Stack Developer</p>
+              <p className="text-gray-500 mt-2">University of Washington '25</p>
             </div>
           </div>
 

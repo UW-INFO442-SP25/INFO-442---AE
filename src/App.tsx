@@ -44,6 +44,8 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/interviews" element={<Interviews />} />
+                  <Route path="/interview/:id" element={<InterviewDetail />} />
                   
                   {/* Protected routes */}
                   <Route path="/dashboard" element={
@@ -61,19 +63,9 @@ function App() {
                       <Contributions />
                     </ProtectedRoute>
                   } />
-                  <Route path="/interviews" element={
-                    <ProtectedRoute>
-                      <Interviews />
-                    </ProtectedRoute>
-                  } />
                   <Route path="/create-interview" element={
                     <ProtectedRoute>
                       <CreateInterview />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/interview/:id" element={
-                    <ProtectedRoute>
-                      <InterviewDetail />
                     </ProtectedRoute>
                   } />
                   <Route path="/onboarding" element={

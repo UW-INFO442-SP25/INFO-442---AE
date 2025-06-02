@@ -26,6 +26,7 @@ import { Loader2 } from "lucide-react";
 
 import useDebounce from "@/hooks/useDebounce";
 import useInterviewSearch from "@/hooks/useInterviewSearch";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 interface FirebaseInterview {
@@ -139,6 +140,7 @@ const Interviews = () => {
   >([]);
   const [firebaseLoading, setFirebaseLoading] = useState(true);
 
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -196,7 +198,7 @@ const Interviews = () => {
     return matchCompany && matchRole;
   });
 
-  // Dropdown options should come from whatever list we’re viewing
+  // Dropdown options should come from whatever list we're viewing
   const companies = [
     "All Companies",
     ...Array.from(new Set(baseInterviews.map((ivw) => ivw.company))),
@@ -242,11 +244,18 @@ const Interviews = () => {
             <Button
               className="bg-blue-500 hover:bg-blue-600"
               onClick={() => {
+                if (!currentUser) {
+                  toast({
+                    title: "Sign in required",
+                    description: "Please sign in to share your interview experience.",
+                  });
+                  navigate("/login", { state: { from: "/create-interview" } });
+                  return;
+                }
                 navigate("/create-interview");
                 toast({
                   title: "Share Your Experience",
-                  description:
-                    "Help others by sharing your interview experience.",
+                  description: "Help others by sharing your interview experience.",
                 });
               }}
             >
