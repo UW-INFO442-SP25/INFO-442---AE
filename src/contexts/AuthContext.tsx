@@ -8,7 +8,7 @@ import {
   setPersistence,
   browserLocalPersistence
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth } from '../lib/firebase.ts';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -16,6 +16,8 @@ interface AuthContextType {
   signup: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  needsOnboarding: boolean;
+  setNeedsOnboarding: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -31,15 +33,15 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(true); // ✅ added
 
   useEffect(() => {
     console.log("Setting up auth state listener...");
-    
+
     // Set persistence to LOCAL
-    setPersistence(auth, browserLocalPersistence)
-      .catch((error) => {
-        console.error("Auth persistence error:", error);
-      });
+    setPersistence(auth, browserLocalPersistence).catch((error) => {
+      console.error("Auth persistence error:", error);
+    });
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log("Auth state changed:", user ? "User logged in" : "No user");
@@ -47,7 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    // Cleanup subscription
     return () => {
       console.log("Cleaning up auth state listener...");
       unsubscribe();
@@ -84,12 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const value = {
+  const value: AuthContextType = {
     currentUser,
     loading,
     signup,
     login,
-    logout
+    logout,
+    needsOnboarding,           // ✅ added
+    setNeedsOnboarding         // ✅ added
   };
 
   return (

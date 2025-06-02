@@ -69,10 +69,27 @@ const InterviewSubmissionForm = () => {
       
       toast({
         title: "Success!",
-        description: "Your interview experience has been shared successfully.",
+        description: "Your interview experience has been submitted successfully. It will appear on the site after review.",
       });
       
-      navigate('/my-contributions');
+      // Reset form
+      setFormData({
+        company: "",
+        role: "",
+        interviewType: "",
+        rounds: "",
+        process: "",
+        questions: "",
+        preparation: "",
+        timeline: "",
+        difficulty: "Medium",
+      });
+      
+      // Navigate to contributions page after a brief delay
+      setTimeout(() => {
+        navigate('/my-contributions');
+      }, 2000);
+      
     } catch (error: any) {
       console.error("Detailed error submitting interview experience:", {
         error,
@@ -163,7 +180,7 @@ const InterviewSubmissionForm = () => {
             name="questions"
             value={formData.questions}
             onChange={handleChange}
-            placeholder="Share some questions you were asked..."
+            placeholder="Share some questions you were asked (one per line)..."
             required
             className="min-h-[100px]"
           />
@@ -225,6 +242,12 @@ const InterviewSubmissionForm = () => {
           {isSubmitting ? "Submitting..." : "Share Experience"}
         </Button>
       </div>
+      
+      {isSubmitting && (
+        <div className="text-center text-sm text-gray-600">
+          <p>Submitting your experience... This may take a moment.</p>
+        </div>
+      )}
     </form>
   );
 };

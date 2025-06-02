@@ -15,12 +15,13 @@ console.log('Firebase Config:', {
 // Your web app's Firebase configuration
 // Replace these with your Firebase project configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyBTwpZR1PvVfIeOdp03P-F14NnHTlJrRfM",
+  authDomain: "info-442--ae.firebaseapp.com",
+  databaseURL: "https://info-442--ae-default-rtdb.firebaseio.com",
+  projectId: "info-442--ae",
+  storageBucket: "info-442--ae.firebasestorage.app",
+  messagingSenderId: "816931095068",
+  appId: "1:816931095068:web:025f6141afbaae944b95d9"
 };
 
 // Initialize Firebase
