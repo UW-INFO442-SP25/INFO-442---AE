@@ -1,4 +1,3 @@
-// src/pages/Interviews.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -28,9 +27,6 @@ import { Loader2 } from "lucide-react";
 import useDebounce from "@/hooks/useDebounce";
 import useInterviewSearch from "@/hooks/useInterviewSearch";
 
-/* ------------------------------------------------------------------ */
-/*  Types */
-/* ------------------------------------------------------------------ */
 
 interface FirebaseInterview {
   id: string;
@@ -70,10 +66,6 @@ interface InterviewCardData {
   };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers */
-/* ------------------------------------------------------------------ */
-
 // Convert a Firestore doc to the structure InterviewCard expects
 const convertFirebaseToCardData = (
   fb: FirebaseInterview,
@@ -110,10 +102,6 @@ const convertRemoteToCardData = (r: RemoteInterview): InterviewCardData => ({
   },
 });
 
-/* ------------------------------------------------------------------ */
-/*  Fallback sample data */
-/* ------------------------------------------------------------------ */
-
 const sampleInterviews: InterviewCardData[] = [
   {
     company: "Tech Giant Corp",
@@ -139,12 +127,7 @@ const sampleInterviews: InterviewCardData[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Component */
-/* ------------------------------------------------------------------ */
-
 const Interviews = () => {
-  /* ------------------------ local state ------------------------ */
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -158,7 +141,6 @@ const Interviews = () => {
 
   const navigate = useNavigate();
 
-  /* ------------------------ Firestore ------------------------- */
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
@@ -193,7 +175,6 @@ const Interviews = () => {
     fetchInterviews();
   }, []);
 
-  /* ------------------------ Server search ---------------------- */
   const {
     data: remoteRaw = [],
     isFetching: searchLoading,
@@ -203,8 +184,6 @@ const Interviews = () => {
     remoteRaw as RemoteInterview[]
   ).map(convertRemoteToCardData);
 
-  /* ------------------------ filtering -------------------------- */
-  // Which list are we currently displaying?
   const baseInterviews =
     debouncedQuery.trim().length > 0 ? remoteResults : firebaseInterviews;
 
@@ -233,7 +212,6 @@ const Interviews = () => {
     ),
   ];
 
-  /* ------------------------ loading states --------------------- */
   if (firebaseLoading || searchLoading) {
     return (
       <Layout>
@@ -247,7 +225,6 @@ const Interviews = () => {
     );
   }
 
-  /* ------------------------ render ----------------------------- */
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
