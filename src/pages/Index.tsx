@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Loader2, Users, BookOpen, Target } from "lucide-react";
+import { Loader2, Users, BookOpen, Target, Play } from "lucide-react";
 
 interface FirebaseInterview {
   id: string;
@@ -228,6 +228,38 @@ const Index = () => {
                   Join a supportive community of students helping each other succeed
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* New Video Section */}
+        <div className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Interview Tips & Tricks</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Watch our expert tips on how to ace your internship interviews
+              </p>
+            </div>
+            <div className="aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/we7ba0slWrc"
+                title="Internship Interview Tips"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <div className="mt-8 text-center">
+              <Button
+                variant="outline"
+                className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                onClick={() => navigate('/interviews')}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Watch More Tips
+              </Button>
             </div>
           </div>
         </div>
